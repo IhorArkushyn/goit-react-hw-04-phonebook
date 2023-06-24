@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactForm } from 'components/ContactForm/ContactForm';
 import { Filter } from 'components/Filter/Filter';
@@ -19,11 +19,13 @@ function App() {
   const [contacts, setContacts] = useState(initialState);
 
   useEffect(() => {
-    const contacts = localStorage.getItem(LS_KEY);
-    const parsedContacts = JSON.parse(contacts);
-
+    const storedContacts = localStorage.getItem(LS_KEY);
+    const parsedContacts = JSON.parse(storedContacts);
+    console.log(parsedContacts);
     if (parsedContacts) {
       setContacts(parsedContacts);
+    } else {
+      return;
     }
   }, []);
 
@@ -34,7 +36,7 @@ function App() {
   const addContact = ({ name, number }) => {
     const normalizedFind = name.toLowerCase();
     const findName = contacts.find(
-      contact => contact.name.toLowerCase() === normalizedFind
+      contact => contact.normalizedFind === normalizedFind
     );
     if (findName) {
       return alert(`${name} is already in contacts.`);
@@ -44,8 +46,9 @@ function App() {
     if (findNumber) {
       return alert(`This phone number is already in use.`);
     }
+
     setContacts(prevContacts => [
-      { name, number, id: nanoid() },
+      { id: nanoid(), name, number },
       ...prevContacts,
     ]);
   };
@@ -58,14 +61,13 @@ function App() {
   };
 
   const deleteContact = contactId => {
-    setContacts(prevContacts => {
-      prevContacts.filter(contact => contact.id !== contactId);
-    });
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== contactId)
+    );
   };
 
   const handleFilter = e => {
     const { value } = e.currentTarget;
-
     setFilter(value);
   };
 
@@ -88,4 +90,5 @@ function App() {
     </S.Container>
   );
 }
+
 export default App;
